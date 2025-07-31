@@ -9,8 +9,16 @@ import {
   query,
 } from 'firebase/firestore';
 
+type Entry = {
+  date: string;
+  rider: string;
+  delivered: number;
+  failed: number;
+  returned: number;
+};
+
 export default function DashboardPage() {
-  const [entries, setEntries] = useState<any[]>([]);
+  const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const totalDelivered = entries.reduce((sum, e) => sum + e.delivered, 0);
@@ -27,7 +35,7 @@ export default function DashboardPage() {
     const fetchData = async () => {
       const q = query(collection(db, 'entries'), orderBy('date', 'desc'));
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map((doc) => doc.data());
+      const data = snapshot.docs.map((doc) => doc.data() as Entry);
       setEntries(data);
       setLoading(false);
     };
@@ -59,7 +67,6 @@ export default function DashboardPage() {
   );
 }
 
-// Stat Card component
 function StatCard({
   title,
   value,
@@ -79,7 +86,6 @@ function StatCard({
   );
 }
 
-// Dashboard Block component with flexible children
 function DashboardBlock({
   title,
   description,
@@ -98,8 +104,7 @@ function DashboardBlock({
   );
 }
 
-// Today's Entries Table component
-function TodayEntries({ entries }: { entries: any[] }) {
+function TodayEntries({ entries }: { entries: Entry[] }) {
   const today = new Date().toISOString().split('T')[0];
   const todayEntries = entries.filter((e) => e.date === today);
 
